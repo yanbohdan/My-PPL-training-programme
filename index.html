@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PPL">
+<meta name="theme-color" content="#0D0E11">
+<title>My PPL training programme</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0D0E11;
+    --panel:#17181C;
+    --panel-2:#1F2126;
+    --panel-3:#282A31;
+    --border:#2C2E35;
+    --text:#F5F3ED;
+    --text-dim:#82868F;
+    --text-dim-2:#5C5F67;
+    --primary:#FF5B35;
+    --primary-dim:#3A2016;
+    --push:#FF5B35;      --push-dim:#3A2016;      --push-soft:rgba(255,91,53,0.14);
+    --pull:#2FC1D1;      --pull-dim:#12333A;      --pull-soft:rgba(47,193,209,0.14);
+    --legs:#8CD34A;       --legs-dim:#233318;      --legs-soft:rgba(140,211,74,0.14);
+    --flag:#FFC53D;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  html,body{margin:0; padding:0; height:100%;}
+  body{
+    background:
+      radial-gradient(900px 420px at 15% -8%, rgba(255,91,53,0.10), transparent 55%),
+      radial-gradient(700px 380px at 100% 0%, rgba(47,193,209,0.06), transparent 55%),
+      repeating-linear-gradient(135deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 5px),
+      var(--bg);
+    color:var(--text);
+    font-family:"Inter", -apple-system, sans-serif;
+    overscroll-behavior-y: none;
+    -webkit-font-smoothing:antialiased;
+  }
+  .disp{ font-family:"Bebas Neue", "Inter", sans-serif; font-weight:400; letter-spacing:0.01em; }
+  #app{
+    max-width:560px;
+    margin:0 auto;
+    min-height:100vh;
+    padding-top: calc(var(--safe-top) + 20px);
+    padding-bottom: calc(var(--safe-bottom) + 32px);
+    padding-left:16px;
+    padding-right:16px;
+  }
+  h1,h2,h3{margin:0;}
+
+  @keyframes viewIn{ from{ opacity:0; transform:translateY(10px);} to{ opacity:1; transform:translateY(0);} }
+  #app.entering{ animation: viewIn .38s cubic-bezier(.2,.7,.3,1); }
+
+  @keyframes flagGlow{
+    0%,100%{ box-shadow:0 0 0 1px rgba(255,197,61,0.35), 0 0 0 rgba(255,197,61,0); }
+    50%{ box-shadow:0 0 0 1px rgba(255,197,61,0.55), 0 0 22px rgba(255,197,61,0.28); }
+  }
+
+  @keyframes cardIn{ from{ opacity:0; transform:translateY(14px) scale(0.98);} to{ opacity:1; transform:translateY(0) scale(1);} }
+  .stagger{ opacity:0; animation: cardIn .5s cubic-bezier(.2,.7,.3,1) forwards; }
+  .exercise-card.stagger.flagged{ opacity:0; animation: cardIn .5s cubic-bezier(.2,.7,.3,1) forwards, flagGlow 2.6s ease-in-out .5s infinite; }
+
+  @keyframes segPop{ 0%{ transform:scaleY(1);} 40%{ transform:scaleY(2.1);} 100%{ transform:scaleY(1);} }
+  .ex-seg.pop{ animation: segPop .32s cubic-bezier(.3,1.5,.5,1); }
+
+  @keyframes numberIn{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:translateY(0);} }
+
+  @keyframes btnPress{ 0%{ transform:scale(1);} 50%{ transform:scale(0.9);} 100%{ transform:scale(1);} }
+  .stepper button.pressed{ animation: btnPress .22s ease; }
+
+  @keyframes chevronNudge{ 0%,100%{ transform:translateX(0);} 50%{ transform:translateX(3px);} }
+  .day-card:hover .chevron{ animation: chevronNudge 0.9s ease-in-out infinite; }
+
+  @media (prefers-reduced-motion: reduce){
+    .stagger, #app.entering, .exercise-card.flagged, .ex-seg.pop, .day-card:hover .chevron{ animation:none !important; }
+  }
+
+  /* ---------- HOME ---------- */
+  .home-hero{ margin-bottom:22px; }
+  .home-hero h1{
+    font-size:clamp(28px, 9vw, 44px); line-height:1.0; text-transform:uppercase;
+    background:linear-gradient(100deg, #fff 20%, var(--push) 130%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    display:inline-block;
+  }
+  .home-hero .tagline{ color:var(--text-dim); font-size:14px; margin-top:10px; max-width:340px; line-height:1.5; }
+  .barbell{ display:block; margin-top:16px; width:100%; height:14px; opacity:0.9; }
+
+  .section-title{ font-size:13px; color:var(--text-dim); font-weight:600; margin-bottom:14px; }
+
+  /* ---------- INSTALL / ROTATION BANNERS ---------- */
+  .install-banner{
+    display:flex; align-items:center; gap:10px;
+    background:var(--panel-2); border:1px solid var(--border); border-radius:14px;
+    padding:12px 14px; margin-bottom:14px; font-size:12.5px; color:var(--text-dim); line-height:1.4;
+  }
+  .install-banner > div{ flex:1; }
+  .install-btn-sm{
+    flex-shrink:0; background:var(--accent, var(--primary)); color:#0D0E11; border:none;
+    border-radius:10px; padding:9px 14px; font-family:"Bebas Neue", sans-serif; font-size:14px;
+  }
+  .install-dismiss{
+    flex-shrink:0; width:26px; height:26px; border-radius:50%; background:var(--panel-3);
+    border:1px solid var(--border); color:var(--text-dim); font-size:14px; display:flex; align-items:center; justify-content:center;
+  }
+
+  .update-banner{
+    display:flex; align-items:center; gap:10px;
+    background:var(--push-dim); border:1px solid var(--push); border-radius:14px;
+    padding:12px 14px; margin-bottom:14px; font-size:12.5px; color:var(--text); line-height:1.4;
+  }
+  .update-banner > div{ flex:1; }
+  .update-btn-sm{
+    flex-shrink:0; background:var(--push); color:#0D0E11; border:none;
+    border-radius:10px; padding:9px 14px; font-family:"Bebas Neue", sans-serif; font-size:14px;
+  }
+
+  .rotation-banner{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background:linear-gradient(120deg, var(--panel-2), var(--panel));
+    border:1px solid var(--border); border-radius:14px; padding:14px 16px; margin-bottom:16px;
+  }
+  .rotation-banner .rb-label{ font-size:10.5px; color:var(--text-dim-2); text-transform:uppercase; letter-spacing:0.06em; }
+  .rotation-banner .rb-day{ font-size:24px; margin-top:2px; }
+  .rotation-banner .btn{ flex:0 0 auto; padding:12px 20px; font-size:14px; }
+
+  .day-card{
+    position:relative;
+    display:flex; justify-content:space-between; align-items:center;
+    background: linear-gradient(155deg, var(--panel-2) 0%, var(--panel) 65%);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:20px 18px;
+    margin-bottom:14px;
+    cursor:pointer;
+    transition: transform .15s cubic-bezier(.2,.7,.3,1), box-shadow .15s ease;
+    overflow:hidden;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset;
+  }
+  .day-card::before{
+    content:"";
+    position:absolute; inset:0;
+    background: radial-gradient(140px 140px at 100% 0%, var(--accent-soft, transparent), transparent 70%);
+    pointer-events:none;
+  }
+  .day-card:active{ transform: scale(0.97); }
+  .day-card .day-left{ display:flex; align-items:center; gap:16px; position:relative; z-index:1; }
+  .day-icon{
+    width:54px; height:54px; border-radius:14px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--accent-dim, var(--panel-3));
+    color:var(--accent, var(--text-dim));
+    filter: drop-shadow(0 0 10px var(--accent-glow, transparent));
+  }
+  .day-icon svg{ width:26px; height:26px; }
+  .day-card .day-name{ font-size:30px; letter-spacing:0.02em; text-transform:uppercase; line-height:1; color:var(--text); }
+  .day-card .day-sub{ color:var(--text-dim); font-size:12.5px; margin-top:4px; }
+  .day-card .day-meta{ text-align:right; color:var(--text-dim-2); font-size:11px; line-height:1.5; max-width:96px; position:relative; z-index:1; }
+  .day-card .day-meta b{ color:var(--text-dim); font-weight:600; }
+  .day-card .chevron{ color:var(--accent, var(--text-dim)); font-size:22px; margin-left:10px; position:relative; z-index:1; }
+  .day-card .day-right{ display:flex; align-items:center; }
+  .day-card .accent-bar{ position:absolute; left:0; top:14px; bottom:14px; width:4px; border-radius:3px; background:var(--accent); box-shadow:0 0 12px var(--accent-glow); }
+
+  .footnote{ color:var(--text-dim-2); font-size:11.5px; line-height:1.6; margin-top:24px; padding-top:18px; border-top:1px solid var(--border); }
+  .footnote b{ color:var(--text-dim); }
+
+  /* ---------- CALENDAR / HISTORY ---------- */
+  .panel-card{
+    background:linear-gradient(155deg, var(--panel-2) 0%, var(--panel) 70%);
+    border:1px solid var(--border); border-radius:16px; padding:18px; margin-bottom:14px;
+  }
+  .calendar-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .calendar-nav-btn{
+    width:32px; height:32px; border-radius:9px; background:var(--panel-3); border:1px solid var(--border);
+    color:var(--text); font-size:16px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .calendar-title{ font-size:17px; text-transform:uppercase; letter-spacing:0.02em; }
+  .calendar-weekdays{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:6px; }
+  .calendar-weekdays span{ text-align:center; font-size:9.5px; color:var(--text-dim-2); }
+  .calendar-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .calendar-cell{
+    aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:8px;
+    font-size:11px; color:var(--text-dim); background:var(--panel-3);
+  }
+  .calendar-cell.empty{ background:transparent; }
+  .calendar-cell.today{ box-shadow:0 0 0 1.5px var(--text) inset; font-weight:700; }
+  .calendar-cell.has-push{ background:var(--push-dim); color:var(--push); font-weight:700; }
+  .calendar-cell.has-pull{ background:var(--pull-dim); color:var(--pull); font-weight:700; }
+  .calendar-cell.has-legs{ background:var(--legs-dim); color:var(--legs); font-weight:700; }
+  .calendar-legend{ display:flex; gap:14px; margin-top:12px; font-size:10.5px; color:var(--text-dim-2); }
+  .calendar-legend .dot{ width:8px; height:8px; border-radius:2px; display:inline-block; margin-right:4px; vertical-align:middle; }
+
+  .history-list{ display:flex; flex-direction:column; gap:8px; margin-top:16px; }
+  .history-row{ display:flex; align-items:center; gap:10px; background:var(--panel-2); border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:13px; color:var(--text-dim); }
+  .history-row .dot{ width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+  .history-row b{ color:var(--text); }
+  .history-empty{ color:var(--text-dim-2); font-size:12.5px; text-align:center; padding:14px 0; }
+
+  /* ---------- BACKUP ---------- */
+  .backup-note{ font-size:12px; color:var(--text-dim-2); margin-bottom:12px; line-height:1.5; }
+  .backup-actions{ display:flex; gap:10px; }
+  .backup-btn{
+    flex:1; background:var(--panel-2); border:1px solid var(--border); color:var(--text);
+    border-radius:12px; padding:13px; font-family:"Bebas Neue", sans-serif; font-size:15px;
+    display:flex; align-items:center; justify-content:center; gap:7px; text-align:center; cursor:pointer;
+  }
+  .backup-btn svg{ width:17px; height:17px; }
+
+  /* ---------- WORKOUT VIEW ---------- */
+  .wo-header{
+    position:sticky; top:0;
+    background:linear-gradient(var(--bg) 80%, transparent);
+    padding-top: calc(var(--safe-top) + 10px);
+    padding-bottom:16px;
+    z-index:5;
+    display:flex; align-items:center; gap:12px;
+    margin-bottom:18px;
+  }
+  .wo-header::after{
+    content:""; position:absolute; left:0; right:0; bottom:0; height:2px;
+    background:linear-gradient(90deg, var(--accent), transparent 75%);
+  }
+  .back-btn{
+    background:var(--panel-2); border:1px solid var(--border); color:var(--text);
+    width:42px; height:42px; border-radius:12px; font-size:20px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .back-btn svg{ width:19px; height:19px; }
+  .wo-icon{
+    width:42px; height:42px; border-radius:12px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--accent-dim); color:var(--accent);
+    filter: drop-shadow(0 0 8px var(--accent-glow));
+  }
+  .wo-icon svg{ width:22px; height:22px; }
+  .wo-title{flex:1; min-width:0;}
+  .wo-title h2{ font-family:"Bebas Neue", sans-serif; font-size:26px; letter-spacing:0.02em; text-transform:uppercase; line-height:1; }
+  .wo-title p{ margin:3px 0 0; color:var(--text-dim); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+  .exercise-card{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:18px;
+    margin-bottom:14px;
+  }
+  .exercise-card.flagged{ animation: flagGlow 2.6s ease-in-out infinite; }
+  .ex-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .ex-name{ font-size:16.5px; font-weight:700; letter-spacing:-0.01em; }
+  .ex-desc{ color:var(--text-dim); font-size:12px; margin-top:2px;}
+  .prescription{
+    flex-shrink:0; font-family:"Bebas Neue", sans-serif; font-size:16px; letter-spacing:0.02em;
+    background:var(--accent-soft); color:var(--accent);
+    padding:5px 10px; border-radius:8px; white-space:nowrap;
+  }
+
+  .ex-progress{ display:flex; gap:4px; margin-top:14px; }
+  .ex-seg{ flex:1; height:5px; border-radius:3px; background:var(--panel-3); transition:background .2s ease, box-shadow .2s ease; }
+  .ex-seg.done{ background:var(--accent); box-shadow:0 0 8px var(--accent-glow); }
+
+  .ex-last{ color:var(--text-dim-2); font-size:12px; margin-top:10px; }
+
+  .flag-banner{
+    margin-top:12px;
+    background:rgba(255,197,61,0.10);
+    border:1px solid rgba(255,197,61,0.4);
+    color:var(--flag);
+    border-radius:10px;
+    padding:9px 11px;
+    font-size:12.5px;
+    font-weight:600;
+    display:flex; align-items:center; gap:7px;
+  }
+  .flag-banner svg{ flex-shrink:0; }
+
+  .sets-wrap{ margin-top:16px; display:flex; flex-direction:column; gap:10px; }
+  .set-row{ display:flex; align-items:center; gap:8px; }
+  .set-row.optional{ opacity:0.68; }
+  .set-num-badge{
+    width:26px; height:26px; border-radius:8px; flex-shrink:0;
+    background:var(--panel-3); color:var(--text-dim);
+    display:flex; align-items:center; justify-content:center;
+    font-family:"Bebas Neue", sans-serif; font-size:14px;
+    position:relative;
+  }
+  .set-opt-dot{ position:absolute; top:-3px; right:-3px; width:8px; height:8px; border-radius:50%; background:var(--text-dim-2); border:2px solid var(--panel); }
+
+  .field-group{ flex:1; display:flex; align-items:center; gap:6px; background:var(--panel-2); border-radius:10px; padding:7px 10px; border:1px solid var(--border); transition:border-color .15s ease, box-shadow .15s ease; }
+  .field-group:focus-within{ border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+  .field-label{ font-size:10.5px; color:var(--text-dim-2); flex-shrink:0; }
+  .field-group input[type=number]{
+    width:100%; background:transparent; border:none; color:var(--text);
+    font-family:"Bebas Neue", sans-serif; font-size:19px; text-align:center; -moz-appearance:textfield;
+  }
+  .field-group input[type=number]::-webkit-outer-spin-button,
+  .field-group input[type=number]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+  .field-group input:focus{ outline:none; }
+
+  .stepper{ display:flex; align-items:center; gap:3px; flex:1.35; background:var(--panel-2); border-radius:10px; padding:5px; border:1px solid var(--border); }
+  .stepper button{
+    width:34px; height:34px; border-radius:8px; border:none;
+    background:var(--panel-3); color:var(--text); font-size:18px; font-weight:700;
+    flex-shrink:0;
+  }
+  .stepper button:active{ background:var(--accent); color:#0D0E11; }
+  .stepper .reps-val{ flex:1; text-align:center; font-family:"Bebas Neue", sans-serif; font-size:19px; }
+  .reps-label{ font-size:10px; color:var(--text-dim-2); }
+
+  .bodyweight-tag{ font-size:10.5px; color:var(--text-dim-2); background:var(--panel-2); border:1px solid var(--border); padding:4px 8px; border-radius:8px; }
+
+  .bottom-actions{
+    position:sticky; bottom:0;
+    background:linear-gradient(to top, var(--bg) 60%, transparent);
+    padding-top:18px;
+    padding-bottom: calc(var(--safe-bottom) + 6px);
+    display:flex; gap:10px;
+  }
+  .btn{
+    flex:1; border:none; border-radius:13px; padding:17px; font-size:14.5px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    font-family:"Bebas Neue", sans-serif; text-transform:uppercase; letter-spacing:0.04em; font-size:16px;
+  }
+  .btn-primary{ background:linear-gradient(120deg, var(--accent), var(--accent) 70%); color:#0D0E11; box-shadow:0 6px 22px var(--accent-glow); }
+  .btn-primary:active{ filter:brightness(0.92); }
+  .btn-ghost{ background:var(--panel-2); color:var(--text-dim); border:1px solid var(--border); flex:0 0 auto; padding-left:20px; padding-right:20px; }
+
+  .toast{
+    position:fixed; left:50%; bottom:calc(var(--safe-bottom) + 24px); transform:translateX(-50%);
+    background:var(--panel-3); border:1px solid var(--border); color:var(--text);
+    padding:13px 20px; border-radius:12px; font-size:14px; font-weight:600;
+    box-shadow:0 10px 30px rgba(0,0,0,0.55);
+    opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease;
+    z-index:80;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(-4px); }
+
+  /* ---------- REST TIMER ---------- */
+  .timer-fab{
+    position:fixed;
+    right:18px;
+    bottom:calc(var(--safe-bottom) + 92px);
+    width:58px; height:58px; border-radius:50%;
+    background:linear-gradient(135deg, var(--accent), var(--accent) 70%);
+    color:#0D0E11;
+    border:none;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 8px 24px var(--accent-glow), 0 2px 8px rgba(0,0,0,0.4);
+    z-index:45;
+  }
+  .timer-fab:active{ filter:brightness(0.92); }
+  .timer-fab svg{ width:26px; height:26px; }
+  .timer-fab-text{ display:none; font-family:"Bebas Neue", sans-serif; font-size:15px; letter-spacing:0.02em; }
+  .timer-fab-icon{ display:flex; }
+
+  .timer-overlay{
+    position:fixed; inset:0; background:rgba(6,7,9,0.72); backdrop-filter:blur(3px);
+    display:flex; align-items:center; justify-content:center; padding:20px;
+    opacity:0; pointer-events:none; transition:opacity .2s ease; z-index:70;
+  }
+  .timer-overlay.show{ opacity:1; pointer-events:auto; }
+  .timer-panel{
+    position:relative; width:100%; max-width:340px;
+    background:linear-gradient(155deg, var(--panel-2) 0%, var(--panel) 70%);
+    border:1px solid var(--border); border-radius:20px; padding:24px 20px 20px;
+    transform:translateY(12px); transition:transform .2s ease;
+  }
+  .timer-overlay.show .timer-panel{ transform:translateY(0); }
+  .timer-close{
+    position:absolute; top:12px; right:12px; width:30px; height:30px; border-radius:50%;
+    background:var(--panel-3); border:1px solid var(--border); color:var(--text-dim);
+    font-size:18px; line-height:1; display:flex; align-items:center; justify-content:center;
+  }
+  .timer-title{ text-align:center; color:var(--text-dim); font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; }
+  .timer-ring-wrap{ position:relative; width:170px; height:170px; margin:14px auto 6px; }
+  .timer-ring{ width:170px; height:170px; transform:rotate(-90deg); }
+  .timer-ring-bg{ stroke:var(--panel-3); stroke-width:9; fill:none; }
+  .timer-ring-fg{ stroke:var(--accent); stroke-width:9; fill:none; stroke-linecap:round; transition:stroke-dashoffset .2s linear; }
+  .timer-time{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:"Bebas Neue", sans-serif; font-size:38px; }
+  .timer-presets{ display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-top:10px; }
+  .timer-preset-btn{
+    background:var(--panel-2); border:1px solid var(--border); color:var(--text);
+    padding:8px 13px; border-radius:10px; font-family:"Bebas Neue", sans-serif; font-size:15px;
+  }
+  .timer-preset-btn:active{ background:var(--accent); color:#0D0E11; }
+  .timer-custom{ display:flex; gap:8px; justify-content:center; margin-top:10px; }
+  .stepper-btn{
+    background:var(--panel-2); border:1px solid var(--border); color:var(--text-dim);
+    padding:8px 14px; border-radius:10px; font-family:"Bebas Neue", sans-serif; font-size:13px;
+  }
+  .timer-controls{ display:flex; gap:10px; margin-top:18px; }
+  .timer-controls .btn{ padding:14px; font-size:14px; }
+
+  /* ---------- PROGRAM EDITOR ---------- */
+  .editor-list{ display:flex; flex-direction:column; gap:12px; }
+  .editor-card{
+    background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:14px;
+  }
+  .editor-row-top{ display:flex; gap:8px; align-items:center; }
+  .ed-name{
+    flex:1; background:var(--panel-2); border:1px solid var(--border); border-radius:10px;
+    padding:10px 12px; color:var(--text); font-size:14px; font-weight:600; min-width:0;
+  }
+  .ed-name:focus{ outline:none; border-color:var(--accent); }
+  .ed-delete{
+    flex-shrink:0; width:38px; height:38px; border-radius:10px; border:1px solid var(--border);
+    background:var(--panel-2); color:#E8555A; display:flex; align-items:center; justify-content:center;
+  }
+  .ed-delete svg{ width:17px; height:17px; }
+  .editor-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+  .editor-field-sm{ display:flex; flex-direction:column; gap:4px; font-size:10.5px; color:var(--text-dim-2); }
+  .editor-field-sm select, .editor-field-sm input{
+    background:var(--panel-2); border:1px solid var(--border); border-radius:9px; color:var(--text);
+    padding:8px 9px; font-size:13.5px;
+  }
+  .editor-optional-toggle{ display:flex; align-items:center; gap:8px; margin-top:10px; font-size:12px; color:var(--text-dim); }
+  .add-ex-btn{
+    display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
+    background:var(--panel-2); border:1px dashed var(--border); color:var(--text-dim);
+    border-radius:14px; padding:14px; font-size:13.5px; font-weight:600; margin-top:12px;
+  }
+  .add-ex-btn svg{ width:16px; height:16px; }
+  .restore-default-btn{
+    display:block; margin:16px auto 0; background:none; border:none; color:var(--text-dim-2);
+    font-size:12px; text-decoration:underline; padding:6px;
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------------- ІКОНКИ ----------------
+  var ICONS = {
+    push: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="10" width="4" height="4"/><rect x="18" y="10" width="4" height="4"/><line x1="6" y1="12" x2="9" y2="12"/><line x1="15" y1="12" x2="18" y2="12"/><rect x="9" y="8" width="6" height="8" rx="1"/></svg>',
+    pull: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="7" y1="6" x2="7" y2="15"/><line x1="17" y1="6" x2="17" y2="15"/><path d="M6 15 Q7 18 8.5 15" /><path d="M15.5 15 Q17 18 18 15" /></svg>',
+    legs: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 L8 12 L6 21"/><path d="M15 3 L16 10 L18 21"/><path d="M8 12 L16 10"/></svg>',
+    edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+    trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>',
+    plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+    timer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2"/><path d="M9 2h6"/><path d="M12 2v3"/></svg>',
+    download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>',
+    upload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"/><path d="M7 14l5-5 5 5"/><path d="M5 3h14"/></svg>'
+  };
+  var FLAG_ICON = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h11l-2.5 4L16 12H5"/></svg>';
+  var BARBELL = '<svg class="barbell" viewBox="0 0 320 16" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">' +
+    '<line x1="26" y1="8" x2="294" y2="8" stroke="#3A3D45" stroke-width="2"/>' +
+    '<circle cx="14" cy="8" r="8" fill="none" stroke="#FF5B35" stroke-width="2.4"/>' +
+    '<circle cx="306" cy="8" r="8" fill="none" stroke="#FF5B35" stroke-width="2.4"/>' +
+    '<circle cx="14" cy="8" r="2.6" fill="#FF5B35"/>' +
+    '<circle cx="306" cy="8" r="2.6" fill="#FF5B35"/>' +
+  '</svg>';
+
+  // ---------------- СТАНДАРТНА ПРОГРАМА ----------------
+  var PROGRAM = {
+    push: {
+      label: "Push", subtitle: "Груди · Плечі · Трицепс", accent: "push", accentDim: "push-dim", accentSoft: "push-soft",
+      exercises: [
+        {id:"push_bench",    name:"Жим гантелей лежачи",             desc:"Горизонтальна лава", sets:4, repsMin:8,  repsMax:12, type:"weight"},
+        {id:"push_incline",  name:"Жим гантелей під кутом",          desc:"Лава під кутом",     sets:4, repsMin:10, repsMax:12, type:"weight", optionalLastSet:true},
+        {id:"push_dips",     name:"Віджимання на брусах",            desc:null,                 sets:4, repsMin:null, repsMax:null, type:"bodyweight", note:"До відмови", optionalLastSet:true},
+        {id:"push_pushup",   name:"Віджимання від підлоги",          desc:null,                 sets:4, repsMin:null, repsMax:null, type:"bodyweight", note:"До відмови", optionalLastSet:true},
+        {id:"push_shoulder", name:"Жим гантелей сидячи",             desc:null,                 sets:4, repsMin:8,  repsMax:10, type:"weight", optionalLastSet:true},
+        {id:"push_lateral",  name:"Махи гантелей через сторони стоячи", desc:null,              sets:4, repsMin:12, repsMax:15, type:"weight", optionalLastSet:true},
+        {id:"push_triceps",  name:"Французький жим з гантеллю",      desc:null,                 sets:4, repsMin:10, repsMax:15, type:"weight", optionalLastSet:true}
+      ]
+    },
+    pull: {
+      label: "Pull", subtitle: "Спина · Біцепс", accent: "pull", accentDim: "pull-dim", accentSoft: "pull-soft",
+      exercises: [
+        {id:"pull_pullup", name:"Підтягування на турніку",       desc:"Широкий хват",  sets:4, repsMin:null, repsMax:null, type:"bodyweight", note:"До відмови"},
+        {id:"pull_row",    name:"Тяга гантелі в нахилі",         desc:"Упор на лаву",  sets:4, repsMin:8,  repsMax:10, type:"weight"},
+        {id:"pull_shrug",  name:"Шраги з гантелями",             desc:null,            sets:4, repsMin:12, repsMax:15, type:"weight"},
+        {id:"pull_curl",   name:"Згинання на лаві Скотта",       desc:"По черзі",      sets:4, repsMin:8,  repsMax:12, type:"weight", optionalLastSet:true},
+        {id:"pull_hammer", name:"Згинання «Молотки»",            desc:null,            sets:4, repsMin:10, repsMax:12, type:"weight", optionalLastSet:true}
+      ]
+    },
+    legs: {
+      label: "Legs", subtitle: "Ноги · Прес", accent: "legs", accentDim: "legs-dim", accentSoft: "legs-soft",
+      exercises: [
+        {id:"legs_split",  name:"Болгарські спліт-присідання",   desc:null, sets:4, repsMin:8,  repsMax:12, type:"weight"},
+        {id:"legs_rdl",    name:"Румунська тяга з гантелями",    desc:null, sets:4, repsMin:10, repsMax:15, type:"weight"},
+        {id:"legs_goblet", name:"Гоблет-присідання",             desc:null, sets:4, repsMin:12, repsMax:15, type:"weight", optionalLastSet:true},
+        {id:"legs_calf",   name:"Підйоми на носки стоячи",       desc:null, sets:4, repsMin:15, repsMax:20, type:"weight"},
+        {id:"legs_crunch", name:"Скручування",                   desc:null, sets:4, repsMin:15, repsMax:25, type:"bodyweight"}
+      ]
+    }
+  };
+  var ROTATION = ["push", "pull", "legs"];
+
+  // ---------------- STORAGE ----------------
+  var LS_PREFIX = "ppl_";
+  var APP_DATA_VERSION = 1; // Підвищуйте лише якщо структура даних дійсно змінюється,
+                            // і додавайте міграцію нижче — існуючі дані ніколи не стираються.
+  (function ensureDataVersion(){
+    try{
+      var raw = localStorage.getItem(LS_PREFIX + "data_version");
+      var current = raw ? JSON.parse(raw) : null;
+      if(current == null){
+        localStorage.setItem(LS_PREFIX + "data_version", JSON.stringify(APP_DATA_VERSION));
+      }
+      // Місце для майбутніх міграцій:
+      // if(current < 2){ /* перетворити старі ключі, нічого не видаляючи без потреби */ }
+    }catch(e){}
+  })();
+  function lsGet(key){
+    try{
+      var raw = localStorage.getItem(LS_PREFIX + key);
+      return raw ? JSON.parse(raw) : null;
+    }catch(e){ return null; }
+  }
+  function lsSet(key, value){
+    try{ localStorage.setItem(LS_PREFIX + key, JSON.stringify(value)); }catch(e){}
+  }
+  function lsRemove(key){
+    try{ localStorage.removeItem(LS_PREFIX + key); }catch(e){}
+  }
+
+  function getLast(exId){ return lsGet("last_" + exId); }
+  function setLast(exId, data){ lsSet("last_" + exId, data); }
+  function getDraft(dayKey){ return lsGet("draft_" + dayKey) || {}; }
+  function setDraft(dayKey, data){ lsSet("draft_" + dayKey, data); }
+  function clearDraft(dayKey){ lsRemove("draft_" + dayKey); }
+  function getDayDate(dayKey){ return lsGet("daydate_" + dayKey); }
+  function setDayDate(dayKey, date){ lsSet("daydate_" + dayKey, date); }
+
+  function getExercises(dayKey){
+    var custom = lsGet("custom_" + dayKey);
+    if(custom && Array.isArray(custom) && custom.length){ return custom; }
+    return PROGRAM[dayKey].exercises;
+  }
+  function setExercises(dayKey, exercises){ lsSet("custom_" + dayKey, exercises); }
+  function clearExercises(dayKey){ lsRemove("custom_" + dayKey); }
+
+  // ---------------- ДАТИ / ІСТОРІЯ ----------------
+  var MONTHS_SHORT = ["січ","лют","бер","кві","тра","чер","лип","сер","вер","жов","лис","гру"];
+  var MONTHS_FULL = ["Січень","Лютий","Березень","Квітень","Травень","Червень","Липень","Серпень","Вересень","Жовтень","Листопад","Грудень"];
+  var WEEKDAYS_SHORT = ["Пн","Вт","Ср","Чт","Пт","Сб","Нд"];
+
+  function todayStr(){
+    var d = new Date();
+    return d.getDate() + " " + MONTHS_SHORT[d.getMonth()] + " " + d.getFullYear();
+  }
+  function isoDate(d){
+    var y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,"0"), day = String(d.getDate()).padStart(2,"0");
+    return y + "-" + m + "-" + day;
+  }
+  function fmtShort(d){ return d.getDate() + " " + MONTHS_SHORT[d.getMonth()]; }
+
+  function getHistory(){ return lsGet("history") || []; }
+  function addHistoryEntry(dayKey){
+    var hist = getHistory();
+    var today = isoDate(new Date());
+    hist = hist.filter(function(h){ return h.date !== today; });
+    hist.push({date: today, day: dayKey});
+    hist.sort(function(a, b){ return a.date < b.date ? -1 : (a.date > b.date ? 1 : 0); });
+    lsSet("history", hist);
+  }
+
+  function getSuggestedDay(){
+    var hist = getHistory();
+    if(!hist.length) return ROTATION[0];
+    var last = hist[hist.length - 1];
+    var idx = ROTATION.indexOf(last.day);
+    if(idx === -1) return ROTATION[0];
+    return ROTATION[(idx + 1) % ROTATION.length];
+  }
+
+  // ---------------- КАЛЕНДАР ----------------
+  var calMonthOffset = 0;
+  function calendarBaseDate(){
+    var d = new Date();
+    d.setDate(1);
+    d.setMonth(d.getMonth() + calMonthOffset);
+    return d;
+  }
+  function buildCalendarHTML(){
+    var base = calendarBaseDate();
+    var year = base.getFullYear(), month = base.getMonth();
+    var firstDay = new Date(year, month, 1);
+    var startWeekday = (firstDay.getDay() + 6) % 7; // Пн = 0
+    var daysInMonth = new Date(year, month + 1, 0).getDate();
+    var hist = getHistory();
+    var historyByDate = {};
+    hist.forEach(function(h){ historyByDate[h.date] = h.day; });
+    var todayIso = isoDate(new Date());
+
+    var html = '<div class="calendar-header">' +
+      '<button type="button" class="calendar-nav-btn" id="calPrev">‹</button>' +
+      '<div class="calendar-title disp">' + MONTHS_FULL[month] + ' ' + year + '</div>' +
+      '<button type="button" class="calendar-nav-btn" id="calNext">›</button>' +
+    '</div>';
+    html += '<div class="calendar-weekdays">' + WEEKDAYS_SHORT.map(function(w){ return '<span>' + w + '</span>'; }).join('') + '</div>';
+    html += '<div class="calendar-grid">';
+    for(var i = 0; i < startWeekday; i++){ html += '<div class="calendar-cell empty"></div>'; }
+    for(var day = 1; day <= daysInMonth; day++){
+      var iso = year + "-" + String(month + 1).padStart(2, "0") + "-" + String(day).padStart(2, "0");
+      var dayType = historyByDate[iso];
+      var cls = "calendar-cell" + (dayType ? " has-" + dayType : "") + (iso === todayIso ? " today" : "");
+      html += '<div class="' + cls + '">' + day + '</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+  function attachCalendarNav(){
+    var prev = document.getElementById("calPrev");
+    var next = document.getElementById("calNext");
+    if(prev){ prev.addEventListener("click", function(){ calMonthOffset--; refreshCalendar(); }); }
+    if(next){ next.addEventListener("click", function(){ calMonthOffset++; refreshCalendar(); }); }
+  }
+  function refreshCalendar(){
+    var el = document.getElementById("calendarInner");
+    if(!el) return;
+    el.innerHTML = buildCalendarHTML();
+    attachCalendarNav();
+  }
+
+  // ---------------- РЕЗЕРВНЕ КОПІЮВАННЯ ----------------
+  function exportData(){
+    var data = {};
+    for(var i = 0; i < localStorage.length; i++){
+      var k = localStorage.key(i);
+      if(k && k.indexOf(LS_PREFIX) === 0){ data[k] = localStorage.getItem(k); }
+    }
+    var blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "ppl-backup-" + isoDate(new Date()) + ".json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    showToast("Файл резервної копії збережено");
+  }
+
+  function importDataFromFile(file){
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var data = JSON.parse(reader.result);
+        if(!data || typeof data !== "object" || Array.isArray(data)){
+          showToast("Файл порожній або некоректний");
+          return;
+        }
+        var keys = Object.keys(data).filter(function(k){
+          return k.indexOf(LS_PREFIX) === 0 && typeof data[k] === "string";
+        });
+        if(!keys.length){ showToast("Файл порожній або некоректний"); return; }
+        keys.forEach(function(k){ localStorage.setItem(k, data[k]); });
+        showToast("Дані відновлено ✓");
+        state = lsGet("state") || {view: "home", day: null};
+        render();
+      }catch(e){
+        showToast("Не вдалося прочитати файл");
+      }
+    };
+    reader.onerror = function(){ showToast("Не вдалося прочитати файл"); };
+    reader.readAsText(file);
+  }
+
+  // ---------------- PWA (встановлення на пристрій) ----------------
+  // Реальні manifest.webmanifest та sw.js — окремі файли поруч із index.html.
+  // Ніяких blob:-заглушок: маніфест і service worker завантажуються як
+  // справжні статичні ресурси, тому застосунок дійсно встановлюється
+  // і дійсно кешується для офлайн-роботи.
+  var deferredInstallPrompt = null;
+  var swUpdateReady = false;
+
+  function setupPWA(){
+    if(!("serviceWorker" in navigator)) return;
+
+    // Прибираємо застарілі реєстрації від старих версій застосунку
+    // (наприклад, попередню імітаційну blob:-версію SW), щоб вони не
+    // конфліктували з реальним sw.js і не тримали старий кеш.
+    navigator.serviceWorker.getRegistrations().then(function(regs){
+      regs.forEach(function(reg){
+        var url = (reg.active && reg.active.scriptURL) ||
+                   (reg.waiting && reg.waiting.scriptURL) ||
+                   (reg.installing && reg.installing.scriptURL) || "";
+        if(url.indexOf("blob:") === 0){ reg.unregister(); }
+      });
+    }).catch(function(){});
+
+    navigator.serviceWorker.register("sw.js").then(function(reg){
+      // Періодично перевіряємо, чи є новіша версія sw.js на сервері.
+      setInterval(function(){ reg.update().catch(function(){}); }, 60 * 60 * 1000);
+
+      reg.addEventListener("updatefound", function(){
+        var installing = reg.installing;
+        if(!installing) return;
+        installing.addEventListener("statechange", function(){
+          if(installing.state === "installed" && navigator.serviceWorker.controller){
+            // Нова версія вже завантажена й чекає активації.
+            swUpdateReady = true;
+            showUpdateBanner();
+          }
+        });
+      });
+    }).catch(function(){});
+
+    var reloadedForUpdate = false;
+    navigator.serviceWorker.addEventListener("controllerchange", function(){
+      if(reloadedForUpdate) return;
+      reloadedForUpdate = true;
+      if(swUpdateReady){ window.location.reload(); }
+    });
+  }
+
+  function showUpdateBanner(){
+    if(document.getElementById("updateBanner")) return;
+    if(state.view !== "home") return;
+    var anchor = app.querySelector(".home-hero");
+    if(!anchor) return;
+    var el = document.createElement("div");
+    el.className = "update-banner stagger";
+    el.id = "updateBanner";
+    el.innerHTML = '<div>Доступне оновлення застосунку.</div>' +
+      '<button type="button" class="update-btn-sm" id="applyUpdateBtn">Оновити</button>';
+    anchor.insertAdjacentElement("afterend", el);
+    document.getElementById("applyUpdateBtn").addEventListener("click", function(){
+      navigator.serviceWorker.getRegistration().then(function(reg){
+        if(reg && reg.waiting){ reg.waiting.postMessage({type: "SKIP_WAITING"}); }
+        else { window.location.reload(); }
+      });
+    });
+  }
+
+  function isStandaloneMode(){
+    try{ return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true; }
+    catch(e){ return false; }
+  }
+  function isIOSDevice(){ return /iphone|ipad|ipod/i.test(navigator.userAgent); }
+
+  window.addEventListener("beforeinstallprompt", function(e){
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    if(state.view === "home"){ render(); }
+  });
+  window.addEventListener("appinstalled", function(){
+    deferredInstallPrompt = null;
+    lsSet("install_dismissed", true);
+  });
+
+  // ---------------- STATE ----------------
+  var state = lsGet("state") || { view: "home", day: null };
+  function saveState(){ lsSet("state", state); }
+
+  // ---------------- ЛОГІКА ПОДВІЙНОЇ ПРОГРЕСІЇ ----------------
+  function shouldFlag(exercise, last){
+    if(!last || exercise.type !== "weight" || exercise.repsMax == null) return false;
+    var sets = (last.sets || []).filter(function(s){ return s && s.reps !== null && s.reps !== "" && s.reps !== undefined; });
+    if(sets.length < exercise.sets) return false;
+    return sets.every(function(s){ return Number(s.reps) >= exercise.repsMax; });
+  }
+
+  function lastSummary(exercise, last){
+    if(!last) return "Минулого разу: ще немає даних";
+    var parts = (last.sets || []).map(function(s){
+      if(exercise.type === "bodyweight"){
+        return (s && s.reps !== null && s.reps !== "" ? s.reps : "—");
+      }
+      var w = (s && s.weight !== null && s.weight !== "" && s.weight !== undefined) ? s.weight : "—";
+      var r = (s && s.reps !== null && s.reps !== "" && s.reps !== undefined) ? s.reps : "—";
+      return r + "×" + w + "кг";
+    });
+    var when = last.date ? " (" + last.date + ")" : "";
+    return "Минулого разу" + when + ": " + parts.join(", ");
+  }
+
+  function prescriptionLabel(ex){
+    var setsLabel = ex.optionalLastSet ? (ex.sets - 1) + "+1" : String(ex.sets);
+    var repsLabel;
+    if(ex.type === "bodyweight" && ex.repsMax == null){ repsLabel = ex.note || "до відмови"; }
+    else if(ex.repsMin == null && ex.repsMax == null){ repsLabel = "до відмови"; }
+    else { repsLabel = ex.repsMin + "–" + ex.repsMax; }
+    return setsLabel + " × " + repsLabel;
+  }
+
+  // ---------------- РЕЖИМ ВІДПОЧИНКУ (ТАЙМЕР) ----------------
+  var TIMER_PRESETS = [30, 45, 60, 90, 120, 180];
+  var restTimer = {
+    total: lsGet("timer_last_duration") || 90,
+    remaining: null,
+    endAt: null,
+    running: false,
+    interval: null
+  };
+  var RING_CIRCUMFERENCE = 2 * Math.PI * 52;
+
+  function formatMMSS(s){
+    s = Math.max(0, Math.round(s));
+    var m = Math.floor(s / 60), sec = s % 60;
+    return (m < 10 ? "0" : "") + m + ":" + (sec < 10 ? "0" : "") + sec;
+  }
+
+  function vibrateDevice(){
+    try{ if(navigator.vibrate){ navigator.vibrate([250,120,250,120,400]); } }catch(e){}
+  }
+
+  function playBeepSequence(){
+    try{
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if(!Ctx) return;
+      var ctx = new Ctx();
+      [0, 0.28, 0.56].forEach(function(t){
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime + t);
+        gain.gain.exponentialRampToValueAtTime(0.35, ctx.currentTime + t + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + t + 0.22);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + t);
+        osc.stop(ctx.currentTime + t + 0.25);
+      });
+    }catch(e){}
+  }
+
+  function updateTimerDisplay(){
+    var running = restTimer.running;
+    var remaining = running ? Math.max(0, (restTimer.endAt - Date.now()) / 1000) : (restTimer.remaining != null ? restTimer.remaining : restTimer.total);
+
+    var timeEl = document.getElementById("timerTimeDisplay");
+    if(timeEl){
+      var ringFg = document.getElementById("timerRingFg");
+      timeEl.textContent = formatMMSS(remaining);
+      var pct = restTimer.total ? Math.max(0, Math.min(1, remaining / restTimer.total)) : 0;
+      ringFg.style.strokeDasharray = RING_CIRCUMFERENCE;
+      ringFg.style.strokeDashoffset = RING_CIRCUMFERENCE * (1 - pct);
+      var toggleBtn = document.getElementById("timerToggleBtn");
+      if(toggleBtn){
+        toggleBtn.textContent = running ? "Пауза" : (remaining > 0 && remaining < restTimer.total ? "Продовжити" : "Старт");
+      }
+    }
+
+    var fabIcon = document.getElementById("timerFabIcon");
+    var fabText = document.getElementById("timerFabText");
+    if(fabIcon && fabText){
+      if(running && remaining > 0){
+        fabIcon.style.display = "none"; fabText.style.display = "inline"; fabText.textContent = formatMMSS(remaining);
+      } else {
+        fabIcon.style.display = "flex"; fabText.style.display = "none";
+      }
+    }
+
+    if(running && remaining <= 0){
+      finishRestTimer();
+    }
+  }
+
+  function startRestTimer(seconds){
+    if(seconds){
+      restTimer.total = seconds;
+      restTimer.remaining = seconds;
+      lsSet("timer_last_duration", seconds);
+    }
+    if(restTimer.remaining == null || restTimer.remaining <= 0){ restTimer.remaining = restTimer.total; }
+    restTimer.endAt = Date.now() + restTimer.remaining * 1000;
+    restTimer.running = true;
+    clearInterval(restTimer.interval);
+    restTimer.interval = setInterval(updateTimerDisplay, 250);
+    updateTimerDisplay();
+  }
+
+  function pauseRestTimer(){
+    if(!restTimer.running) return;
+    restTimer.remaining = Math.max(0, (restTimer.endAt - Date.now()) / 1000);
+    restTimer.running = false;
+    clearInterval(restTimer.interval);
+    updateTimerDisplay();
+  }
+
+  function resetRestTimer(){
+    clearInterval(restTimer.interval);
+    restTimer.running = false;
+    restTimer.remaining = restTimer.total;
+    updateTimerDisplay();
+  }
+
+  function adjustRestTimer(delta){
+    if(restTimer.running){
+      restTimer.endAt += delta * 1000;
+      restTimer.total = Math.max(15, restTimer.total + delta);
+    } else {
+      var base = restTimer.remaining != null ? restTimer.remaining : restTimer.total;
+      base = Math.max(15, base + delta);
+      restTimer.remaining = base;
+      restTimer.total = base;
+    }
+    updateTimerDisplay();
+  }
+
+  function finishRestTimer(){
+    clearInterval(restTimer.interval);
+    restTimer.running = false;
+    restTimer.remaining = 0;
+    updateTimerDisplay();
+    vibrateDevice();
+    playBeepSequence();
+    showToast("Відпочинок завершено ✓");
+  }
+
+  // ---------------- РЕНДЕР ----------------
+  var app = document.getElementById("app");
+
+  function playEnter(){
+    app.classList.remove("entering");
+    void app.offsetWidth;
+    app.classList.add("entering");
+  }
+
+  function render(){
+    if(state.view === "workout" && state.day && PROGRAM[state.day]){
+      renderWorkout(state.day);
+    } else if(state.view === "edit" && state.day && PROGRAM[state.day]){
+      renderEditor(state.day);
+    } else {
+      state.view = "home"; state.day = null; saveState();
+      renderHome();
+    }
+    playEnter();
+  }
+
+  function renderHome(){
+    var suggested = getSuggestedDay();
+    var sDay = PROGRAM[suggested];
+    var showInstall = !isStandaloneMode() && !lsGet("install_dismissed") && (deferredInstallPrompt || isIOSDevice());
+    var hist = getHistory();
+    var histRows = hist.slice().reverse().slice(0, 15);
+
+    var html = '';
+    html += '<div class="home-hero">' +
+      '<h1 class="disp">My PPL training programme</h1>' +
+      '<div class="tagline">Домашній Push / Pull / Legs з гантелями та турніком. Подвійна прогресія сама підкаже, де час додати вагу.</div>' +
+      BARBELL +
+    '</div>';
+
+    if(showInstall){
+      html += '<div class="install-banner stagger" id="installBanner" style="animation-delay:.02s">' +
+        '<div>' + (isIOSDevice()
+          ? 'Додайте застосунок на головний екран: «Поділитися» → «На екран Домівки».'
+          : 'Встановіть застосунок на телефон, щоб відкривати його як окремий додаток.') + '</div>' +
+        (isIOSDevice() ? '' : '<button type="button" class="install-btn-sm" id="installBtn">Встановити</button>') +
+        '<button type="button" class="install-dismiss" id="installDismissBtn" title="Закрити">×</button>' +
+      '</div>';
+    }
+
+    html += '<div class="rotation-banner stagger" style="animation-delay:.04s;">' +
+      '<div><div class="rb-label">Сьогодні за розкладом</div><div class="rb-day disp" style="color:var(--' + sDay.accent + ');">' + sDay.label + '</div></div>' +
+      '<button type="button" class="btn btn-primary" id="startSuggestedBtn">Почати</button>' +
+    '</div>';
+
+    Object.keys(PROGRAM).forEach(function(key, i){
+      var day = PROGRAM[key];
+      var date = getDayDate(key);
+      var vars = '--accent:var(--' + day.accent + '); --accent-dim:var(--' + day.accentDim + '); --accent-soft:var(--' + day.accentSoft + '); --accent-glow:var(--' + day.accent + ');';
+      html += '' +
+        '<div class="day-card stagger" data-day="' + key + '" style="' + vars + '; animation-delay:' + (0.08 + i * 0.07) + 's;">' +
+          '<div class="accent-bar"></div>' +
+          '<div class="day-left">' +
+            '<div class="day-icon">' + ICONS[key] + '</div>' +
+            '<div>' +
+              '<div class="day-name disp">' + day.label + '</div>' +
+              '<div class="day-sub">' + day.subtitle + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="day-right">' +
+            '<div class="day-meta">' + (date ? "Востаннє:<br><b>" + date + "</b>" : "Ще не<br>виконано") + '</div>' +
+            '<div class="chevron">›</div>' +
+          '</div>' +
+        '</div>';
+    });
+
+    // ---- Історія: календар + список ----
+    html += '<div class="panel-card stagger" style="animation-delay:.3s">';
+    html += '<div class="section-title">Історія тренувань</div>';
+    html += '<div id="calendarInner">' + buildCalendarHTML() + '</div>';
+    html += '<div class="calendar-legend">' +
+      '<span><span class="dot" style="background:var(--push)"></span>Push</span>' +
+      '<span><span class="dot" style="background:var(--pull)"></span>Pull</span>' +
+      '<span><span class="dot" style="background:var(--legs)"></span>Legs</span>' +
+    '</div>';
+    html += '<div class="history-list">';
+    if(histRows.length === 0){
+      html += '<div class="history-empty">Ще немає завершених тренувань</div>';
+    } else {
+      histRows.forEach(function(h){
+        var d = new Date(h.date + "T00:00:00");
+        html += '<div class="history-row"><span class="dot" style="background:var(--' + h.day + ')"></span><b>' + PROGRAM[h.day].label + '</b>&nbsp;— ' + fmtShort(d) + '</div>';
+      });
+    }
+    html += '</div>'; // history-list
+    html += '</div>'; // panel-card
+
+    // ---- Резервне копіювання ----
+    html += '<div class="panel-card stagger" style="animation-delay:.36s">';
+    html += '<div class="section-title">Резервне копіювання</div>';
+    html += '<div class="backup-note">Дані зберігаються лише в цьому браузері. Збережіть файл, щоб не втратити прогрес, або перенести його на інший пристрій.</div>';
+    html += '<div class="backup-actions">' +
+      '<button type="button" class="backup-btn" id="exportBtn">' + ICONS.download + ' Експорт</button>' +
+      '<label class="backup-btn" for="importFile">' + ICONS.upload + ' Імпорт</label>' +
+      '<input type="file" id="importFile" accept="application/json" style="display:none;">' +
+    '</div>';
+    html += '</div>';
+
+    html += '<div class="footnote">Дані зберігаються лише на цьому пристрої (<b>LocalStorage</b>). Вправа підсвітиться жовтим, якщо минулого разу всі підходи досягли верхньої межі повторень — це сигнал додати вагу. Олівець на екрані тренування дозволяє змінити вправи чи діапазони повторень.</div>';
+
+    app.innerHTML = html;
+
+    app.querySelectorAll(".day-card").forEach(function(el){
+      el.addEventListener("click", function(){
+        state.view = "workout";
+        state.day = el.getAttribute("data-day");
+        saveState();
+        render();
+      });
+    });
+
+    document.getElementById("startSuggestedBtn").addEventListener("click", function(){
+      state.view = "workout"; state.day = suggested; saveState(); render();
+    });
+
+    attachCalendarNav();
+
+    document.getElementById("exportBtn").addEventListener("click", exportData);
+    document.getElementById("importFile").addEventListener("change", function(e){
+      var file = e.target.files && e.target.files[0];
+      if(file){ importDataFromFile(file); }
+      e.target.value = "";
+    });
+
+    var installBtn = document.getElementById("installBtn");
+    if(installBtn){
+      installBtn.addEventListener("click", function(){
+        if(deferredInstallPrompt){
+          deferredInstallPrompt.prompt();
+          deferredInstallPrompt.userChoice.then(function(){ deferredInstallPrompt = null; });
+        }
+      });
+    }
+    var dismissBtn = document.getElementById("installDismissBtn");
+    if(dismissBtn){
+      dismissBtn.addEventListener("click", function(){
+        lsSet("install_dismissed", true);
+        var b = document.getElementById("installBanner");
+        if(b) b.remove();
+      });
+    }
+  }
+
+  function renderWorkout(dayKey){
+    var day = PROGRAM[dayKey];
+    var exercises = getExercises(dayKey);
+    var draft = getDraft(dayKey);
+    var accentVar = '--accent:var(--' + day.accent + '); --accent-dim:var(--' + day.accentDim + '); --accent-soft:var(--' + day.accentSoft + '); --accent-glow:var(--' + day.accent + ');';
+
+    var html = '';
+    html += '<div class="wo-header" style="' + accentVar + '">' +
+      '<button class="back-btn" id="backBtn">‹</button>' +
+      '<div class="wo-icon">' + ICONS[dayKey] + '</div>' +
+      '<div class="wo-title"><h2>' + day.label + '</h2><p>' + day.subtitle + '</p></div>' +
+      '<button class="back-btn" id="editBtn" title="Редагувати вправи">' + ICONS.edit + '</button>' +
+    '</div>';
+
+    exercises.forEach(function(ex, exIdx){
+      var last = getLast(ex.id);
+      var flagged = shouldFlag(ex, last);
+      var exDraft = draft[ex.id] || [];
+      var mainSetsCount = ex.optionalLastSet ? ex.sets - 1 : ex.sets;
+      var filledCount = 0;
+      for(var fi = 0; fi < mainSetsCount; fi++){
+        var fs = exDraft[fi];
+        if(fs && fs.reps !== null && fs.reps !== undefined && fs.reps !== "" && Number(fs.reps) > 0){ filledCount++; }
+      }
+
+      html += '<div class="exercise-card stagger' + (flagged ? ' flagged' : '') + '" data-ex="' + ex.id + '" style="' + accentVar + ' animation-delay:' + (exIdx * 0.06) + 's;">';
+      html += '<div class="ex-top"><div>';
+      html += '<div class="ex-name">' + ex.name + '</div>';
+      if(ex.desc){ html += '<div class="ex-desc">' + ex.desc + '</div>'; }
+      html += '</div>';
+      html += '<div class="prescription disp">' + prescriptionLabel(ex) + '</div>';
+      html += '</div>';
+
+      html += '<div class="ex-progress">';
+      for(var d = 0; d < mainSetsCount; d++){
+        html += '<div class="ex-seg' + (d < filledCount ? ' done' : '') + '"></div>';
+      }
+      html += '</div>';
+
+      html += '<div class="ex-last">' + lastSummary(ex, last) + '</div>';
+
+      if(flagged){
+        html += '<div class="flag-banner">' + FLAG_ICON + ' Минулого разу — межа повторень в усіх підходах. Час додати вагу.</div>';
+      }
+
+      html += '<div class="sets-wrap">';
+      for(var i = 0; i < ex.sets; i++){
+        var isOptional = !!ex.optionalLastSet && i === ex.sets - 1;
+        var setData = exDraft[i] || {};
+        var lastSetData = (last && last.sets && last.sets[i]) ? last.sets[i] : {};
+        var weightVal = (setData.weight !== undefined && setData.weight !== null) ? setData.weight :
+                         (lastSetData.weight !== undefined && lastSetData.weight !== null ? lastSetData.weight : "");
+        var repsVal = (setData.reps !== undefined && setData.reps !== null) ? setData.reps : "";
+
+        html += '<div class="set-row' + (isOptional ? ' optional' : '') + '" data-set="' + i + '">';
+        html += '<div class="set-num-badge disp">' + (i + 1) + (isOptional ? '<span class="set-opt-dot" title="Опціонально"></span>' : '') + '</div>';
+
+        if(ex.type === "weight"){
+          html += '<div class="field-group">' +
+            '<span class="field-label">кг</span>' +
+            '<input type="number" inputmode="decimal" step="0.5" class="weight-input" value="' + weightVal + '" placeholder="—">' +
+          '</div>';
+        } else {
+          html += '<div class="bodyweight-tag" style="flex:1; text-align:center;">без ваги</div>';
+        }
+
+        html += '<div class="stepper" data-reps="' + repsVal + '">' +
+          '<button class="reps-minus" type="button">–</button>' +
+          '<div class="reps-val">' + (repsVal === "" ? "0" : repsVal) + '</div>' +
+          '<button class="reps-plus" type="button">+</button>' +
+        '</div>';
+
+        html += '</div>'; // set-row
+      }
+      html += '</div>'; // sets-wrap
+      html += '</div>'; // exercise-card
+    });
+
+    html += '<div class="bottom-actions" style="' + accentVar + '">' +
+      '<button class="btn btn-ghost" id="resetBtn">Скинути</button>' +
+      '<button class="btn btn-primary" id="finishBtn">Завершити</button>' +
+    '</div>';
+
+    html += '<button class="timer-fab" id="timerFab" style="' + accentVar + '" title="Таймер відпочинку">' +
+      '<span class="timer-fab-icon" id="timerFabIcon">' + ICONS.timer + '</span>' +
+      '<span class="timer-fab-text" id="timerFabText"></span>' +
+    '</button>';
+
+    html += '<div class="timer-overlay" id="timerOverlay">' +
+      '<div class="timer-panel" style="' + accentVar + '">' +
+        '<button class="timer-close" id="timerCloseBtn">×</button>' +
+        '<div class="timer-title">Відпочинок</div>' +
+        '<div class="timer-ring-wrap">' +
+          '<svg viewBox="0 0 120 120" class="timer-ring">' +
+            '<circle cx="60" cy="60" r="52" class="timer-ring-bg"></circle>' +
+            '<circle cx="60" cy="60" r="52" class="timer-ring-fg" id="timerRingFg"></circle>' +
+          '</svg>' +
+          '<div class="timer-time" id="timerTimeDisplay">00:00</div>' +
+        '</div>' +
+        '<div class="timer-presets">' +
+          TIMER_PRESETS.map(function(s){ return '<button type="button" class="timer-preset-btn" data-sec="' + s + '">' + formatMMSS(s) + '</button>'; }).join('') +
+        '</div>' +
+        '<div class="timer-custom">' +
+          '<button type="button" class="stepper-btn" id="timerMinus15">–15с</button>' +
+          '<button type="button" class="stepper-btn" id="timerPlus15">+15с</button>' +
+        '</div>' +
+        '<div class="timer-controls">' +
+          '<button class="btn btn-ghost" id="timerResetBtn">Скинути</button>' +
+          '<button class="btn btn-primary" id="timerToggleBtn">Старт</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+    app.innerHTML = html;
+    attachWorkoutEvents(dayKey, exercises);
+    updateTimerDisplay();
+  }
+
+  function attachWorkoutEvents(dayKey, exercises){
+    document.getElementById("backBtn").addEventListener("click", function(){
+      state.view = "home"; state.day = null; saveState(); render();
+    });
+
+    document.getElementById("editBtn").addEventListener("click", function(){
+      state.view = "edit"; state.day = dayKey; saveState(); render();
+    });
+
+    function readDraftFromDOM(){
+      var draft = {};
+      app.querySelectorAll(".exercise-card").forEach(function(card){
+        var exId = card.getAttribute("data-ex");
+        var sets = [];
+        card.querySelectorAll(".set-row").forEach(function(row){
+          var weightInput = row.querySelector(".weight-input");
+          var stepper = row.querySelector(".stepper");
+          var weight = weightInput ? (weightInput.value === "" ? null : Number(weightInput.value)) : null;
+          var repsAttr = stepper.getAttribute("data-reps");
+          var reps = repsAttr === "" ? null : Number(repsAttr);
+          sets.push({weight: weight, reps: reps});
+        });
+        draft[exId] = sets;
+      });
+      return draft;
+    }
+
+    function updateProgress(card){
+      var filled = 0;
+      card.querySelectorAll(".set-row:not(.optional)").forEach(function(row){
+        var stepper = row.querySelector(".stepper");
+        var repsAttr = stepper.getAttribute("data-reps");
+        if(repsAttr !== "" && Number(repsAttr) > 0) filled++;
+      });
+      var segs = card.querySelectorAll(".ex-seg");
+      segs.forEach(function(seg, idx){
+        var wasDone = seg.classList.contains("done");
+        var isDone = idx < filled;
+        if(isDone && !wasDone){
+          seg.classList.add("done", "pop");
+          setTimeout(function(){ seg.classList.remove("pop"); }, 340);
+        } else if(!isDone){
+          seg.classList.remove("done");
+        }
+      });
+    }
+
+    function persistDraft(){
+      setDraft(dayKey, readDraftFromDOM());
+    }
+
+    app.querySelectorAll(".weight-input").forEach(function(input){
+      input.addEventListener("input", persistDraft);
+      input.addEventListener("blur", persistDraft);
+    });
+
+    app.querySelectorAll(".stepper").forEach(function(stepper){
+      var valEl = stepper.querySelector(".reps-val");
+      var minus = stepper.querySelector(".reps-minus");
+      var plus = stepper.querySelector(".reps-plus");
+      var card = stepper.closest(".exercise-card");
+
+      function current(){
+        var attr = stepper.getAttribute("data-reps");
+        return attr === "" ? 0 : Number(attr);
+      }
+      function update(v){
+        if(v < 0) v = 0;
+        stepper.setAttribute("data-reps", String(v));
+        valEl.textContent = String(v);
+        persistDraft();
+        updateProgress(card);
+      }
+      function press(btn){ btn.classList.remove("pressed"); void btn.offsetWidth; btn.classList.add("pressed"); }
+      minus.addEventListener("click", function(){ press(minus); update(current() - 1); });
+      plus.addEventListener("click", function(){ press(plus); update(current() + 1); });
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", function(){
+      if(confirm("Очистити всі введені сьогодні дані для цього дня?")){
+        clearDraft(dayKey);
+        render();
+      }
+    });
+
+    document.getElementById("finishBtn").addEventListener("click", function(){
+      var draft = readDraftFromDOM();
+      var date = todayStr();
+      var anySaved = false;
+
+      exercises.forEach(function(ex){
+        var sets = draft[ex.id] || [];
+        var hasData = sets.some(function(s){ return (s.reps !== null && s.reps !== undefined) || (s.weight !== null && s.weight !== undefined); });
+        if(hasData){
+          setLast(ex.id, {date: date, sets: sets});
+          anySaved = true;
+        }
+      });
+
+      if(anySaved){
+        setDayDate(dayKey, date);
+        clearDraft(dayKey);
+        addHistoryEntry(dayKey);
+        showToast("Тренування збережено ✓");
+      } else {
+        showToast("Немає введених даних");
+      }
+
+      state.view = "home"; state.day = null; saveState();
+      setTimeout(render, anySaved ? 500 : 0);
+    });
+
+    // ---- Таймер відпочинку ----
+    var timerOverlay = document.getElementById("timerOverlay");
+    document.getElementById("timerFab").addEventListener("click", function(){
+      timerOverlay.classList.add("show");
+      updateTimerDisplay();
+    });
+    document.getElementById("timerCloseBtn").addEventListener("click", function(){
+      timerOverlay.classList.remove("show");
+    });
+    timerOverlay.addEventListener("click", function(e){
+      if(e.target === timerOverlay){ timerOverlay.classList.remove("show"); }
+    });
+    app.querySelectorAll(".timer-preset-btn").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        startRestTimer(Number(btn.getAttribute("data-sec")));
+      });
+    });
+    document.getElementById("timerToggleBtn").addEventListener("click", function(){
+      if(restTimer.running){ pauseRestTimer(); } else { startRestTimer(); }
+    });
+    document.getElementById("timerResetBtn").addEventListener("click", resetRestTimer);
+    document.getElementById("timerMinus15").addEventListener("click", function(){ adjustRestTimer(-15); });
+    document.getElementById("timerPlus15").addEventListener("click", function(){ adjustRestTimer(15); });
+  }
+
+  // ---------------- РЕДАГУВАННЯ ПРОГРАМИ ----------------
+  function blankExercise(){
+    return { id: "custom_" + Date.now() + "_" + Math.floor(Math.random() * 1000), name: "", desc: null, sets: 4, repsMin: 8, repsMax: 12, type: "weight", optionalLastSet: false };
+  }
+
+  function esc(str){ return String(str == null ? "" : str).replace(/"/g, "&quot;"); }
+
+  function buildEditorCardHTML(ex){
+    return '<div class="editor-card" data-exid="' + ex.id + '">' +
+      '<div class="editor-row-top">' +
+        '<input type="text" class="ed-name" placeholder="Назва вправи" value="' + esc(ex.name) + '">' +
+        '<button type="button" class="ed-delete" title="Видалити">' + ICONS.trash + '</button>' +
+      '</div>' +
+      '<div class="editor-grid">' +
+        '<label class="editor-field-sm"><span>Тип</span>' +
+          '<select class="ed-type">' +
+            '<option value="weight"' + (ex.type === "weight" ? " selected" : "") + '>З вагою</option>' +
+            '<option value="bodyweight"' + (ex.type === "bodyweight" ? " selected" : "") + '>Своя вага</option>' +
+          '</select>' +
+        '</label>' +
+        '<label class="editor-field-sm"><span>Підходи</span><input type="number" class="ed-sets" min="1" max="8" value="' + ex.sets + '"></label>' +
+        '<label class="editor-field-sm"><span>Повт. від</span><input type="number" class="ed-repsmin" min="0" value="' + (ex.repsMin != null ? ex.repsMin : "") + '" placeholder="—"></label>' +
+        '<label class="editor-field-sm"><span>Повт. до</span><input type="number" class="ed-repsmax" min="0" value="' + (ex.repsMax != null ? ex.repsMax : "") + '" placeholder="до відмови"></label>' +
+      '</div>' +
+      '<label class="editor-optional-toggle"><input type="checkbox" class="ed-optional"' + (ex.optionalLastSet ? " checked" : "") + '> Останній підхід — опціональний</label>' +
+    '</div>';
+  }
+
+  function renderEditor(dayKey){
+    var day = PROGRAM[dayKey];
+    var exercises = getExercises(dayKey);
+    var accentVar = '--accent:var(--' + day.accent + '); --accent-dim:var(--' + day.accentDim + '); --accent-soft:var(--' + day.accentSoft + '); --accent-glow:var(--' + day.accent + ');';
+
+    var html = '';
+    html += '<div class="wo-header" style="' + accentVar + '">' +
+      '<button class="back-btn" id="cancelEditBtn">‹</button>' +
+      '<div class="wo-title"><h2>Редагування</h2><p>' + day.label + ' · ' + day.subtitle + '</p></div>' +
+    '</div>';
+
+    html += '<div class="editor-list" id="editorList">';
+    exercises.forEach(function(ex){ html += buildEditorCardHTML(ex); });
+    html += '</div>';
+
+    html += '<button type="button" class="add-ex-btn" id="addExBtn">' + ICONS.plus + ' Додати вправу</button>';
+    html += '<button type="button" class="restore-default-btn" id="restoreDefaultBtn">Відновити стандартну програму</button>';
+
+    html += '<div class="bottom-actions" style="' + accentVar + '">' +
+      '<button class="btn btn-ghost" id="cancelEditBtn2">Скасувати</button>' +
+      '<button class="btn btn-primary" id="saveEditBtn">Зберегти</button>' +
+    '</div>';
+
+    app.innerHTML = html;
+    attachEditorEvents(dayKey);
+  }
+
+  function attachEditorEvents(dayKey){
+    function goBackToWorkout(){
+      state.view = "workout"; state.day = dayKey; saveState(); render();
+    }
+
+    document.getElementById("cancelEditBtn").addEventListener("click", goBackToWorkout);
+    document.getElementById("cancelEditBtn2").addEventListener("click", goBackToWorkout);
+
+    document.getElementById("editorList").addEventListener("click", function(e){
+      var del = e.target.closest(".ed-delete");
+      if(del){
+        var card = del.closest(".editor-card");
+        if(card) card.remove();
+      }
+    });
+
+    document.getElementById("addExBtn").addEventListener("click", function(){
+      var addBtn = document.getElementById("addExBtn");
+      addBtn.insertAdjacentHTML("beforebegin", buildEditorCardHTML(blankExercise()));
+    });
+
+    document.getElementById("restoreDefaultBtn").addEventListener("click", function(){
+      if(confirm("Відновити стандартний список вправ для цього дня? Ваші власні зміни буде видалено.")){
+        clearExercises(dayKey);
+        renderEditor(dayKey);
+      }
+    });
+
+    document.getElementById("saveEditBtn").addEventListener("click", function(){
+      var list = [];
+      document.querySelectorAll(".editor-card").forEach(function(card){
+        var name = card.querySelector(".ed-name").value.trim();
+        if(!name) return;
+        var type = card.querySelector(".ed-type").value;
+        var sets = Math.max(1, Math.min(8, parseInt(card.querySelector(".ed-sets").value, 10) || 1));
+        var rMinRaw = card.querySelector(".ed-repsmin").value;
+        var rMaxRaw = card.querySelector(".ed-repsmax").value;
+        var repsMin = rMinRaw === "" ? null : Number(rMinRaw);
+        var repsMax = rMaxRaw === "" ? null : Number(rMaxRaw);
+        var optionalLastSet = card.querySelector(".ed-optional").checked;
+        var item = { id: card.getAttribute("data-exid"), name: name, desc: null, sets: sets, repsMin: repsMin, repsMax: repsMax, type: type, optionalLastSet: optionalLastSet };
+        if(type === "bodyweight" && repsMax == null){ item.note = "До відмови"; }
+        list.push(item);
+      });
+      if(list.length === 0){ showToast("Додайте хоча б одну вправу"); return; }
+      setExercises(dayKey, list);
+      showToast("Програму збережено ✓");
+      goBackToWorkout();
+    });
+  }
+
+  function showToast(msg){
+    var toast = document.getElementById("toast");
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(function(){ toast.classList.remove("show"); }, 1800);
+  }
+
+  setupPWA();
+  render();
+})();
+</script>
+</body>
+</html>
